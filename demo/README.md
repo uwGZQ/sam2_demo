@@ -160,6 +160,30 @@ This will start the frontend development server on [http://localhost:7262](http:
   docker compose down
   ```
 
+## Deploying the Demo on Modal
+
+The repository includes a [`modal_app.py`](../modal_app.py) entrypoint that packages the
+backend and the static frontend into a single GPU-enabled Modal deployment. To publish a
+public URL:
+
+1. [Install the Modal CLI](https://modal.com/docs/guide/setup) and authenticate with
+   `modal token new` if you have not done so already.
+2. From the repository root, run the local entrypoint that performs the deployment and
+   prints the resulting endpoint:
+
+   ```bash
+   modal run modal_app.py::deploy
+   ```
+
+   The command builds the Docker image defined in [`backend.Dockerfile`](../backend.Dockerfile),
+   which now also bundles the production React build. Modal will provision an A10G GPU for the
+   inference service.
+3. Share the printed URL with your users. The same endpoint serves the React frontend and the
+   GraphQL/REST APIs, so no additional proxying is required.
+
+If you need to redeploy after making changes, rerun the `modal run` command above. Modal will
+reuse cached image layers when possible.
+
 ## Contributing
 
 Contributions are welcome! Please read our contributing guidelines to get started.

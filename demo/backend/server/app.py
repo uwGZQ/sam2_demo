@@ -4,6 +4,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+import os
+from pathlib import Path
 from typing import Any, Generator
 
 from app_conf import (
@@ -17,7 +19,15 @@ from app_conf import (
 from data.loader import preload_data
 from data.schema import schema
 from data.store import set_videos
-from flask import Flask, make_response, Request, request, Response, send_from_directory
+from flask import (
+    abort,
+    Flask,
+    make_response,
+    Request,
+    request,
+    Response,
+    send_from_directory,
+)
 from flask_cors import CORS
 from inference.data_types import PropagateDataResponse, PropagateInVideoRequest
 from inference.multipart import MultipartResponseBuilder
@@ -33,6 +43,19 @@ videos = preload_data()
 set_videos(videos)
 
 inference_api = InferenceAPI()
+
+FRONTEND_DIST_PATH = Path(
+    os.getenv("FRONTEND_DIST_PATH", Path(__file__).parent / "frontend_dist")
+)
+FRONTEND_INDEX_PATH = FRONTEND_DIST_PATH / "index.html"
+_STATIC_ROUTE_PREFIXES = {
+    "graphql",
+    "healthy",
+    "propagate_in_video",
+    GALLERY_PREFIX,
+    POSTERS_PREFIX,
+    UPLOADS_PREFIX,
+}
 
 
 @app.route("/healthy")
@@ -71,6 +94,25 @@ def send_uploaded_video(path: str):
         )
     except:
         raise ValueError("resource not found")
+
+
+# Frontend static assets ----------------------------------------------------
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path: str) -> Response:
+    if path and any(path.startswith(prefix) for prefix in _STATIC_ROUTE_PREFIXES):
+        abort(404)
+
+    asset_path = FRONTEND_DIST_PATH / path
+    if path and asset_path.exists():
+        return send_from_directory(FRONTEND_DIST_PATH, path)
+
+    if FRONTEND_INDEX_PATH.exists():
+        return send_from_directory(FRONTEND_DIST_PATH, "index.html")
+
+    abort(404)
 
 
 # TOOD: Protect route with ToS permission check

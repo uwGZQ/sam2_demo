@@ -1,6 +1,16 @@
 ARG BASE_IMAGE=pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
 ARG MODEL_SIZE=base_plus
 
+FROM node:22.9.0 AS frontend-build
+
+WORKDIR /app
+
+# Install dependencies and build the production bundle for the React frontend.
+COPY demo/frontend/package.json demo/frontend/yarn.lock ./
+RUN corepack enable && yarn install --frozen-lockfile
+COPY demo/frontend/ ./
+RUN yarn build
+
 FROM ${BASE_IMAGE}
 
 # Gunicorn environment variables
@@ -43,6 +53,9 @@ COPY demo/backend/server ${APP_ROOT}/server
 
 # Copy SAM 2 inference files
 COPY sam2 ${APP_ROOT}/server/sam2
+
+# Copy the pre-built frontend bundle so the Flask app can serve it directly.
+COPY --from=frontend-build /app/dist ${APP_ROOT}/server/frontend_dist
 
 # Download SAM 2.1 checkpoints
 ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_tiny.pt
