@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Iterable, List, Optional
 
 import strawberry
-from app_conf import API_URL
 from data.resolver import resolve_videos
 from dataclasses_json import dataclass_json
 from strawberry import relay
@@ -25,11 +24,11 @@ class Video(relay.Node):
 
     @strawberry.field
     def url(self) -> str:
-        return f"{API_URL}/{self.path}"
+        return f"/{self.path}"
 
     @strawberry.field
     def poster_url(self) -> str:
-        return f"{API_URL}/{self.poster_path}"
+        return f"/{self.poster_path}" if self.poster_path else ""
 
     @classmethod
     def resolve_nodes(

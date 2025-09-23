@@ -31,8 +31,21 @@ export const ABOUT_URL = 'https://ai.meta.com/sam2';
 export const EMAIL_ADDRESS = 'segment-anything@meta.com';
 export const BLOG_URL = 'http://ai.meta.com/blog/sam2';
 
-export const VIDEO_API_ENDPOINT = 'http://localhost:7263';
-export const INFERENCE_API_ENDPOINT = 'http://localhost:7263';
+const getDefaultEndpoint = () => {
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return window.location.origin;
+  }
+
+  const {VITE_INFERENCE_API_ENDPOINT} = import.meta.env;
+  if (VITE_INFERENCE_API_ENDPOINT != null) {
+    return VITE_INFERENCE_API_ENDPOINT;
+  }
+
+  return 'http://localhost:7263';
+};
+
+export const VIDEO_API_ENDPOINT = getDefaultEndpoint();
+export const INFERENCE_API_ENDPOINT = getDefaultEndpoint();
 
 export const demoObjectLimit = 3;
 
