@@ -12,7 +12,7 @@ ENV GUNICORN_PORT=5000
 ENV APP_ROOT=/opt/sam2
 ENV PYTHONUNBUFFERED=1
 ENV SAM2_BUILD_CUDA=0
-ENV MODEL_SIZE=${MODEL_SIZE}
+ENV MODEL_SIZE=base_plus
 
 # Install system requirements
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -45,10 +45,13 @@ COPY demo/backend/server ${APP_ROOT}/server
 COPY sam2 ${APP_ROOT}/server/sam2
 
 # Download SAM 2.1 checkpoints
-ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_tiny.pt
-ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_small.pt
-ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_base_plus.pt
-ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_large.pt
+# ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_tiny.pt
+# ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_small.pt
+# ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_base_plus.pt
+# ADD https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt ${APP_ROOT}/checkpoints/sam2.1_hiera_large.pt
+# RUN mkdir -p ${APP_ROOT}/checkpoints && \
+#     curl -L https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt \
+#       -o ${APP_ROOT}/checkpoints/sam2.1_hiera_base_plus.pt
 
 WORKDIR ${APP_ROOT}/server
 
